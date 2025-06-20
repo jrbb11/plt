@@ -10,7 +10,8 @@ import Booking         from "./pages/Booking.jsx";
 // Dashboard
 import DashboardClient from "./pages/DashboardClient.jsx";
 import AdminLayout from "./components/AdminLayout";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminUsers from "./pages/Admin/AdminUsers"; // ✅ Added
 
 
 
@@ -47,6 +48,7 @@ export default function App() {
         {/* Dashboard */}
         <Route path="/admin" element={<AdminLayout />}>
   <Route index element={<AdminDashboard />} />
+   <Route path="users" element={<AdminUsers />} />  {/* ✅ add this */}
 </Route>
 
 
