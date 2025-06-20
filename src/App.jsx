@@ -9,6 +9,10 @@ import Booking         from "./pages/Booking.jsx";
 
 // Dashboard
 import DashboardClient from "./pages/DashboardClient.jsx";
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./pages/AdminDashboard";
+
+
 
 // Auth pages (barrel import from src/pages/Auth/index.js)
 import {
@@ -41,7 +45,11 @@ export default function App() {
         <Route path="/thank-you"      element={<ThankYou />} />
 
         {/* Dashboard */}
-        <Route path="/dashboard"      element={<DashboardClient />} />
+        <Route path="/admin" element={<AdminLayout />}>
+  <Route index element={<AdminDashboard />} />
+</Route>
+
+
       </Routes>
       <PetChatWidget />
     </>
