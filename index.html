@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 1) Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pet Love Travel</title>
+
+    <!-- Load Facebook SDK for Customer Chat -->
+    <script async defer crossorigin="anonymous"
+      src="https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js">
+    </script>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          xfbml            : true,
+          version          : 'v16.0'
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <!-- fb-root placeholder -->
+    <div id="fb-root"></div>
+
+    <div id="root"></div>
+
+    <!-- Messenger Chat plugin -->
+    <div
+      class="fb-customerchat"
+      attribution="setup_tool"
+      page_id="105342855603645"
+      theme_color="#17C0EB"
+      logged_in_greeting="Hi! How can we help you with your pet transport?"
+      logged_out_greeting="Please log in to chat with us."
+    ></div>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
