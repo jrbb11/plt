@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import logo from "../assets/logo.png";
 import "../index.css";
 import QuotationSection from "../components/QuotationSection";
@@ -8,7 +9,12 @@ import QuotationSection from "../components/QuotationSection";
 
 export default function LandingPage() {
     const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState(null);
   
+    useEffect(() => {
+      supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    }, []);
+
     // Close mobile menu on scroll
     useEffect(() => {
       const handleScroll = () => {
@@ -35,6 +41,19 @@ export default function LandingPage() {
           <a href="#services" className="hover:text-[#17C0EB] transition">Services</a>
           <a href="#howitworks" className="hover:text-[#17C0EB] transition">How It Works</a>
           <a href="#contact" className="hover:text-[#17C0EB] transition">Contact</a>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="hover:text-[#17C0EB] transition">Dashboard</Link>
+              <button 
+                onClick={() => supabase.auth.signOut()}
+                className="hover:text-[#17C0EB] transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="hover:text-[#17C0EB] transition">Login</Link>
+          )}
         </div>
 
         {/* Mobile Hamburger */}

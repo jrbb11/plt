@@ -1,23 +1,73 @@
 // src/pages/Auth/Login.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { checkAdminStatus } from "../../services/userService";
 import logo from "../../assets/logo.png";
 
 export default function Login() {
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  // No isAdmin or useAuth
+
+  // Get redirect URL from query params
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTo = searchParams.get('redirect') || '/';
+
+  // Redirect if already logged in
+  // useEffect(() => {
+  //   if (isAdmin) {
+  //     navigate('/admin');
+  //   }
+  // }, [isAdmin, navigate]);
+
+  useEffect(() => {
+    return () => {
+      console.log("[Login] Component unmounted");
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      return alert(error.message);
+    try {
+      console.log("[Login] Before signInWithPassword");
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      console.log("[Login] After signInWithPassword", { data, error });
+      if (error) {
+        setLoading(false);
+        alert(error.message);
+        return;
+      }
+      if (data.user) {
+        console.log("[Login] Authenticated user id:", data.user.id);
+        
+        // Check if user is admin and redirect accordingly
+        try {
+          const isAdmin = await checkAdminStatus(data.user.id);
+          console.log("[Login] User admin status:", isAdmin);
+          
+          if (isAdmin) {
+            // Admin users go to admin dashboard
+            navigate('/admin');
+          } else {
+            // Regular users go to their intended destination or dashboard
+            navigate(redirectTo === '/' ? '/dashboard' : redirectTo);
+          }
+        } catch (error) {
+          console.error("[Login] Error checking admin status:", error);
+          // Fallback to regular user flow
+          navigate(redirectTo === '/' ? '/dashboard' : redirectTo);
+        }
+      }
+    } catch (err) {
+      console.error("[Login] Unexpected error:", err);
+      alert("Unexpected error: " + err.message);
     }
-    window.location.href = "/";
+    setLoading(false);
   };
 
   return (

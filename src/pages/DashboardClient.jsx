@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useNavigate, Link } from "react-router-dom";
-import { FaPaw, FaSignOutAlt, FaUserEdit, FaTaxi, FaTimes } from "react-icons/fa";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { FaPaw, FaSignOutAlt, FaUserEdit, FaTaxi, FaTimes, FaExclamationTriangle } from "react-icons/fa";
 import Modal from "react-modal";
 
 Modal.setAppElement('#root');
@@ -11,7 +11,17 @@ export default function DashboardClient() {
   const [bookings, setBookings] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for access denied message
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('error') === 'access_denied') {
+      setAccessDenied(true);
+    }
+  }, [location]);
 
   useEffect(() => {
     async function fetchData() {
@@ -19,7 +29,7 @@ export default function DashboardClient() {
       if (!user) return navigate("/login");
 
       const { data, error } = await supabase
-        .from("users")
+        .from("userall") // <-- updated table name
         .select("first_name, last_name")
         .eq("id", user.id)
         .single();
@@ -48,6 +58,21 @@ export default function DashboardClient() {
 
   return (
     <div className="fixed inset-0">
+      {/* Access Denied Message */}
+      {accessDenied && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 shadow-lg">
+            <FaExclamationTriangle />
+            <span>Access denied. You don't have admin privileges.</span>
+            <button 
+              onClick={() => setAccessDenied(false)}
+              className="ml-2 text-red-500 hover:text-red-700"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Background Image Layer */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-50"

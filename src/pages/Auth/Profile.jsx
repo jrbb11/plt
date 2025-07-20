@@ -4,6 +4,7 @@ import { supabase } from "../../supabaseClient";
 import logo         from "../../assets/logo.png";
 import "../../index.css";
 import { useNavigate } from "react-router-dom";
+import { getUserById, updateUser } from '../../services/userService';
 
 export default function Profile() {
   const [firstName, setFirstName] = useState("");
@@ -17,11 +18,7 @@ export default function Profile() {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = user.id;
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("first_name,last_name")
-        .eq("id", userId)
-        .single();
+      const { data, error } = await getUserById(userId);
 
       if (!error) {
         setFirstName(data.first_name);
@@ -47,10 +44,7 @@ export default function Profile() {
     const userId = user.id;
 
     // update profile table
-    const { error: updErr } = await supabase
-      .from("users")
-      .update({ first_name: firstName, last_name: lastName })
-      .eq("id", userId);
+    const { error: updErr } = await updateUser(userId, { first_name: firstName, last_name: lastName });
     if (updErr) {
       console.error("Profile update error:", updErr);
       setSaving(false);

@@ -9,11 +9,11 @@ import Booking         from "./pages/Booking.jsx";
 
 // Dashboard
 import DashboardClient from "./pages/DashboardClient.jsx";
-import AdminLayout from "./components/AdminLayout";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
-import AdminUsers from "./pages/Admin/AdminUsers"; // ✅ Added
-
-
+import RequireAuth from "./components/RequireAuth";
+import RequireAdmin from "./components/RequireAdmin";
+import RoleGuard, { AdminGuard, UserGuard } from "./components/RoleGuard";
+import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
+import Unauthorized from "./pages/Unauthorized.jsx";
 
 // Auth pages (barrel import from src/pages/Auth/index.js)
 import {
@@ -26,6 +26,9 @@ import {
 // Event registration flow
 import EventRegistration from "./pages/EventRegistration.jsx";
 import ThankYou          from "./pages/ThankYou.jsx";
+
+// Example component
+import AuthExample from "./components/AuthExample.jsx";
 
 export default function App() {
   return (
@@ -45,13 +48,46 @@ export default function App() {
         <Route path="/event-register" element={<EventRegistration />} />
         <Route path="/thank-you"      element={<ThankYou />} />
 
-        {/* Dashboard */}
-        <Route path="/admin" element={<AdminLayout />}>
-  <Route index element={<AdminDashboard />} />
-   <Route path="users" element={<AdminUsers />} />  {/* ✅ add this */}
-</Route>
+        {/* User Dashboard - Using RequireAuth (legacy) */}
+        <Route path="/dashboard" element={
+          <RequireAuth>
+            <DashboardClient />
+          </RequireAuth>
+        } />
 
+        {/* User Dashboard - Using UserGuard (new approach) */}
+        <Route path="/dashboard-new" element={
+          <UserGuard>
+            <DashboardClient />
+          </UserGuard>
+        } />
 
+        {/* Admin Dashboard - Using RequireAdmin (legacy) */}
+        <Route path="/admin" element={
+          <RequireAdmin>
+            <AdminDashboard />
+          </RequireAdmin>
+        } />
+
+        {/* Admin Dashboard - Using AdminGuard (new approach) */}
+        <Route path="/admin-new" element={
+          <AdminGuard>
+            <AdminDashboard />
+          </AdminGuard>
+        } />
+
+        {/* Example of custom role-based route */}
+        <Route path="/manager" element={
+          <RoleGuard requiredRoles={['admin', 'manager']}>
+            <div>Manager Dashboard</div>
+          </RoleGuard>
+        } />
+
+        {/* Unauthorized Page */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Example Route - Remove this in production */}
+        <Route path="/auth-example" element={<AuthExample />} />
       </Routes>
       <PetChatWidget />
     </>

@@ -5,6 +5,7 @@ import logo from "../../assets/logo.png";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "../../index.css"; // for .btn-brand
+import { createUser } from '../../services/userService';
 
 export default function Registration() {
   const [firstName, setFirstName]     = useState("");
@@ -34,20 +35,16 @@ export default function Registration() {
       return toast.error(signUpError.message);
     }
 
-    // 2) Insert into your `users` table (not userall)
+    // 2) Insert into your `userall` table (not users)
     const userId = signUpData.user.id;
-    const { error: insertError } = await supabase
-      .from("users")               // ← use "users" here
-      .insert([
-        {
-          id:         userId,
-          first_name: firstName,
-          last_name:  lastName,
-          email:      email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ]);
+    const { error: insertError } = await createUser({
+      id:         userId,
+      first_name: firstName,
+      last_name:  lastName,
+      email:      email,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
 
     setLoading(false);
 
