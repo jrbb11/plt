@@ -153,8 +153,18 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-100 py-4 text-center text-gray-600">
-        © 2025 Pet.Love.Travel | All Rights Reserved
+      <footer className="bg-gray-100 py-8 text-center text-gray-600">
+        <div className="max-w-6xl mx-auto px-6">
+          <p className="mb-4">© 2025 Pet.Love.Travel | All Rights Reserved</p>
+          <div className="space-x-6">
+            <Link to="/privacy-policy" className="text-[#17C0EB] hover:underline">
+              Privacy Policy
+            </Link>
+            <a href="#contact" className="text-[#17C0EB] hover:underline">
+              Contact Us
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );

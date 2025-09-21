@@ -6,6 +6,7 @@ import PetChatWidget from './components/PetChatWidget';
 // Public pages
 import LandingPage     from "./pages/LandingPage.jsx";
 import Booking         from "./pages/Booking.jsx";
+import PrivacyPolicy   from "./pages/PrivacyPolicy.jsx";
 
 // Dashboard
 import DashboardClient from "./pages/DashboardClient.jsx";
@@ -35,8 +36,9 @@ export default function App() {
     <>
       <Routes>
         {/* Public */}
-        <Route path="/"        element={<LandingPage />} />
-        <Route path="/booking" element={<Booking />} />
+        <Route path="/"              element={<LandingPage />} />
+        <Route path="/booking"       element={<Booking />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         {/* Authentication */}
         <Route path="/register"       element={<Registration />} />
