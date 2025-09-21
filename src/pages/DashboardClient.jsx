@@ -28,13 +28,20 @@ export default function DashboardClient() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return navigate("/login");
 
+      // Set a friendly name immediately from auth user to avoid blocking UI
+      setUserData({ first_name: (user.email || '').split('@')[0] || 'there' });
+
+      // Optionally load role/email from user_roles for future use; not blocking greeting
       const { data, error } = await supabase
-        .from("userall") // <-- updated table name
-        .select("first_name, last_name")
-        .eq("id", user.id)
+        .from("user_roles")
+        .select("email, role")
+        .eq("user_id", user.id)
         .single();
 
-      if (!error) setUserData(data);
+      // We keep greeting regardless; you can merge extra info if needed
+      if (!error && data?.email) {
+        setUserData({ first_name: (data.email || '').split('@')[0] || 'there' });
+      }
 
       const { data: bookingData } = await supabase
         .from("bookings")

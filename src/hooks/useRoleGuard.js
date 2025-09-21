@@ -49,8 +49,14 @@ export function useRoleGuard(requiredRoles, requireAuth = true) {
     userRole = userMetadata?.role || null;
   }
 
+  // Normalize to handle super_admin having admin rights if desired
+  const effectiveRoles = new Set([userRole]);
+  if (userRole === 'super_admin') {
+    effectiveRoles.add('admin');
+  }
+
   // Check if user has any of the required roles
-  const hasRequiredRole = rolesArray.includes(userRole);
+  const hasRequiredRole = rolesArray.some(r => effectiveRoles.has(r));
 
   return {
     hasAccess: hasRequiredRole,

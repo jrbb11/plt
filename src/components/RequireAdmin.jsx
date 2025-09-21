@@ -7,30 +7,36 @@ export default function RequireAdmin({ children }) {
   const { user, loading, isAuthenticated, isAdmin, userProfile } = useAuth();
   const location = useLocation();
 
-  // Detailed debug logs
+  // Debug logging
   console.log('[RequireAdmin] State:', {
     isAuthenticated,
     isAdmin,
     loading,
-    user,
-    userProfile,
-    userId: user?.id,
-    userEmail: user?.email,
-    role: userProfile?.role,
+    user: user ? { id: user.id, email: user.email } : null,
+    userProfile: userProfile ? { role: userProfile.role, is_admin: userProfile.is_admin } : null,
   });
 
   // Show loading spinner while checking authentication and admin status
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <div className="ml-4 text-lg text-blue-600">Checking admin access...</div>
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Checking Admin Access...</h2>
+          <p className="text-gray-600">Verifying your permissions</p>
+          <div className="mt-4 text-sm text-gray-500">
+            <p>• Loading user session...</p>
+            <p>• Fetching admin status...</p>
+            <p>• Validating permissions...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
+    console.log('[RequireAdmin] User not authenticated, redirecting to login');
     return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
@@ -41,7 +47,7 @@ export default function RequireAdmin({ children }) {
   // fall back to checking user metadata
   if (!userProfile && user) {
     const userMetadata = user.user_metadata;
-    const isAdminFromMetadata = userMetadata?.role === 'admin' || userMetadata?.is_admin === true;
+    const isAdminFromMetadata = ['admin', 'super_admin'].includes(userMetadata?.role);
     userIsAdmin = isAdminFromMetadata;
     console.log('[RequireAdmin] Using metadata fallback for admin check:', {
       userMetadata,

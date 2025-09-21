@@ -1,27 +1,27 @@
 import { supabase } from '../supabaseClient';
 
 export async function getUserById(id) {
-  return supabase.from('userall').select('*').eq('id', id).single();
+  return supabase.from('user_roles').select('*').eq('user_id', id).single();
 }
 
 export async function getUserByEmail(email) {
-  return supabase.from('userall').select('*').eq('email', email).single();
+  return supabase.from('user_roles').select('*').eq('email', email).single();
 }
 
 export async function createUser(user) {
-  return supabase.from('userall').insert([user]);
+  return supabase.from('user_roles').insert([user]);
 }
 
 export async function updateUser(id, updates) {
-  return supabase.from('userall').update(updates).eq('id', id);
+  return supabase.from('user_roles').update(updates).eq('user_id', id);
 }
 
 export async function getAllUsers() {
-  return supabase.from('userall').select('*');
+  return supabase.from('user_roles').select('*');
 }
 
 export async function deleteUser(id) {
-  return supabase.from('userall').delete().eq('id', id);
+  return supabase.from('user_roles').delete().eq('user_id', id);
 }
 
 export async function checkAdminStatus(userId) {
@@ -58,13 +58,11 @@ export async function checkAdminStatus(userId) {
       
       console.log('User data:', userData);
       console.log('User role field:', userData?.role);
-      console.log('User is_admin field:', userData?.is_admin);
       
-      // Check if user has admin role (supporting both 'role' and 'is_admin' fields)
-      const isAdmin = userData?.role === 'admin' || userData?.is_admin === true;
+      // Admin if role is admin or super_admin
+      const isAdmin = userData?.role === 'admin' || userData?.role === 'super_admin';
       console.log('Is admin:', isAdmin);
-      console.log('Role check (role === "admin"):', userData?.role === 'admin');
-      console.log('Boolean check (is_admin === true):', userData?.is_admin === true);
+      console.log('Role check (admin/super_admin):', userData?.role);
       
       return isAdmin;
     } catch (error) {

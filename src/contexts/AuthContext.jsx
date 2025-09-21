@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { getUserById } from '../services/userService';
 
 const AuthContext = createContext();
 
@@ -11,7 +10,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [profileCache, setProfileCache] = useState(new Map());
 
-  // Fetch user profile from userall table with timeout and retry logic
+  // Fetch user profile from userall table with caching and retry logic
   const fetchUserProfile = async (userId) => {
     if (!userId) return null;
     
@@ -21,7 +20,7 @@ export function AuthProvider({ children }) {
       return profileCache.get(userId);
     }
     
-    const maxRetries = 2;
+    const maxRetries = 3;
     const timeout = 5000; // 5 seconds timeout
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -32,7 +31,11 @@ export function AuthProvider({ children }) {
           setTimeout(() => reject(new Error('Database query timeout')), timeout);
         });
         
-        const userPromise = getUserById(userId);
+        const userPromise = supabase
+          .from('user_roles')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
         
         const { data, error } = await Promise.race([userPromise, timeoutPromise]);
         
@@ -41,7 +44,7 @@ export function AuthProvider({ children }) {
           throw error;
         }
         
-        console.log(`[AuthContext] Successfully fetched user profile for ${userId}`);
+        console.log(`[AuthContext] Successfully fetched user profile for ${userId}:`, data);
         
         // Cache the result
         setProfileCache(prev => new Map(prev).set(userId, data));
@@ -63,14 +66,18 @@ export function AuthProvider({ children }) {
     return null;
   };
 
-  // Initialize auth state
+  // Initialize auth state on app load
   useEffect(() => {
     let isMounted = true;
 
     const initializeAuth = async () => {
       try {
+        console.log('[AuthContext] Initializing auth state...');
+        
         // Get initial session
         const { data: { session: initialSession } } = await supabase.auth.getSession();
+        
+        console.log('[AuthContext] Session check complete:', initialSession ? 'Session found' : 'No session');
         
         if (!isMounted) return;
 
@@ -79,6 +86,7 @@ export function AuthProvider({ children }) {
 
         // If we have a session, fetch the user profile
         if (initialSession?.user) {
+          console.log('[AuthContext] Found existing session, fetching user profile...');
           const profile = await fetchUserProfile(initialSession.user.id);
           if (isMounted) {
             setUserProfile(profile);
@@ -86,6 +94,7 @@ export function AuthProvider({ children }) {
         }
 
         setLoading(false);
+        console.log('[AuthContext] Auth initialization complete');
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (isMounted) {
@@ -96,24 +105,26 @@ export function AuthProvider({ children }) {
 
     initializeAuth();
 
-    // Listen for auth changes
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log(`[AuthContext] Auth state changed: ${event}`, session?.user?.id);
         
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
           // Fetch user profile when user signs in
+          console.log('[AuthContext] User signed in, fetching profile...');
           const profile = await fetchUserProfile(session.user.id);
           if (isMounted) {
             setUserProfile(profile);
           }
         } else {
           // Clear user profile when user signs out
+          console.log('[AuthContext] User signed out, clearing profile...');
           setUserProfile(null);
         }
 
@@ -130,6 +141,7 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
+      console.log('[AuthContext] Logging out...');
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Error signing out:', error);
@@ -141,6 +153,7 @@ export function AuthProvider({ children }) {
       setUserProfile(null);
       setSession(null);
       setProfileCache(new Map());
+      console.log('[AuthContext] Logout successful');
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
@@ -152,6 +165,8 @@ export function AuthProvider({ children }) {
     if (!user?.id) return;
     
     try {
+      console.log('[AuthContext] Refreshing user profile...');
+      
       // Clear cache for this user to force fresh fetch
       setProfileCache(prev => {
         const newCache = new Map(prev);
@@ -176,7 +191,7 @@ export function AuthProvider({ children }) {
     logout,
     refreshUserProfile,
     isAuthenticated: !!user,
-    isAdmin: userProfile?.role === 'admin' || userProfile?.is_admin === true,
+    isAdmin: userProfile?.role === 'admin' || userProfile?.role === 'super_admin',
     role: userProfile?.role || null
   };
 
