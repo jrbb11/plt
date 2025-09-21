@@ -94,6 +94,7 @@ export default function LandingPage() {
           <img src={logo} alt="Pet.Love.Travel" className="h-28" />
         </div>
         <h1 className="text-4xl font-extrabold mb-4 animate-fadeIn">Your Trusted Pet Transport Service</h1>
+        <p className="text-sm font-medium mb-2 opacity-90 animate-fadeIn">PLT Iridescent Corporation</p>
         <p className="max-w-xl text-lg mb-6 animate-fadeIn">
           Safe, reliable, and loving transport for your pets across Metro Manila and nationwide — via car, ferry, or plane.
         </p>
@@ -155,6 +156,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-100 py-8 text-center text-gray-600">
         <div className="max-w-6xl mx-auto px-6">
+          <p className="mb-2 font-semibold text-[#17C0EB]">PLT Iridescent Corporation</p>
           <p className="mb-4">© 2025 Pet.Love.Travel | All Rights Reserved</p>
           <div className="space-x-6">
             <Link to="/privacy-policy" className="text-[#17C0EB] hover:underline">
