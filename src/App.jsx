@@ -7,6 +7,7 @@ import PetChatWidget from './components/PetChatWidget';
 import LandingPage     from "./pages/LandingPage.jsx";
 import Booking         from "./pages/Booking.jsx";
 import PrivacyPolicy   from "./pages/PrivacyPolicy.jsx";
+import TermsOfService  from "./pages/TermsOfService.jsx";
 
 // Dashboard
 import DashboardClient from "./pages/DashboardClient.jsx";
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/"              element={<LandingPage />} />
         <Route path="/booking"       element={<Booking />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms"         element={<TermsOfService />} />
 
         {/* Authentication */}
         <Route path="/register"       element={<Registration />} />
